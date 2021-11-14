@@ -1,3 +1,10 @@
+# tagged_tuple
+Tuple but with tags.
+
+
+Example code:
+
+```
 #include <iostream>
 #include "tagged_tuple.hpp"
 
@@ -25,15 +32,9 @@ int main() {
     // tagged_tuple is derives from tuple<value_types<TagPairs>...> (in this example tuple<std::string, int>)
     // so it's implicitly convertible
     std::tuple<std::string, int> regular_tuple{ user };
-    user_t another_user{ regular_tuple }; // msvc v142 only
-    // if you want this to work with gcc, clang or msvc v143 then add the following constructors
-    // template <class... Types>
-    // constexpr tagged_tuple(std::tuple<Types...> &tuple) : value_type(tuple) {}
-    // template <class... Types>
-    // constexpr tagged_tuple(const std::tuple<Types...> &tuple) : value_type(tuple) {}
-    // template <class... Types>
-    // constexpr tagged_tuple(std::tuple<Types...> &&tuple) : value_type(tuple) {}
+    user_t another_user{ regular_tuple };
     // if you don't like this you just need to make tagged_tuple privately derive from std::tuple instead of publicly
     // I don't think splicing is an issue because it adds no data members. Just keeps track of the TagType -> Index mapping
     // The mapping is done statically so there's no allocations or memory overhead. Should be just as fast as using a normal tuple with proper inlining
 }
+```
