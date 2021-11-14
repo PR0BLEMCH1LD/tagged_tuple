@@ -53,8 +53,8 @@ struct TypeSet : Base<Ts>... {
 // checks if tags are unique
 template <class... Types>
 constexpr auto are_tags_unique() -> bool {
-    constexpr auto typeset = (TypeSet<>{} + ... + Base<name_tag_t<Types>>{});
-    return typeset.size() == sizeof...(Types);
+    constexpr auto tagset = (TypeSet<>{} + ... + Base<name_tag_t<Types>>{});
+    return tagset.size() == sizeof...(Types);
 }
 
 template <class Needle>
