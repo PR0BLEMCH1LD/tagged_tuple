@@ -1,6 +1,6 @@
 // tagged_tuple header
 
-// Code taken from https://gist.github.com/Manu343726/081512c43814d098fe4b
+// Code taken from https://gist.github.com/ilsken/dd91285d50197d6345f9
 // Modified by https://github.com/legendaryzyper
 
 #ifndef _TAGGED_TUPLE_
@@ -89,39 +89,39 @@ public:
     using value_type::value_type;
     using value_type::swap;
     using value_type::operator =;
-    
+
     // copy and move constructors
     template <class... Types>
     tagged_tuple(std::tuple<Types...> &tuple) : value_type(tuple) {}
-    
+
     template <class... Types>
     tagged_tuple(const std::tuple<Types...> &tuple) : value_type(tuple) {}
-    
-    template <class... Types> 
+
+    template <class... Types>
     tagged_tuple(std::tuple<Types...> &&tuple) : value_type(std::move(tuple)) {}
 };
 
 // our special get functions
 template <class Name, class... TypePairs>
-auto get(tagged_tuple<TypePairs...>& tuple) -> typename std::tuple_element<
+auto get(tagged_tuple<TypePairs...> &tuple) -> typename std::tuple_element<
     detail::index_of<Name, detail::name_tag_t<TypePairs>...>(),
-    typename tagged_tuple<TypePairs...>::value_type>::type& {
+    typename tagged_tuple<TypePairs...>::value_type>::type &{
     return std::get<detail::index_of<Name, detail::name_tag_t<TypePairs>...>()>(
         tuple);
 };
 
 template <class Name, class... TypePairs>
-auto get(const tagged_tuple<TypePairs...>& tuple) -> const typename std::tuple_element<
+auto get(const tagged_tuple<TypePairs...> &tuple) -> const typename std::tuple_element<
     detail::index_of<Name, detail::name_tag_t<TypePairs>...>(),
-    typename tagged_tuple<TypePairs...>::value_type>::type& {
+    typename tagged_tuple<TypePairs...>::value_type>::type &{
     return std::get<detail::index_of<Name, detail::name_tag_t<TypePairs>...>()>(
         tuple);
 };
 
 template <class Name, class... TypePairs>
-auto get(tagged_tuple<TypePairs...>&& tuple) -> typename std::tuple_element<
+auto get(tagged_tuple<TypePairs...> &&tuple) -> typename std::tuple_element<
     detail::index_of<Name, detail::name_tag_t<TypePairs>...>(),
-    typename tagged_tuple<TypePairs...>::value_type>::type&& {
+    typename tagged_tuple<TypePairs...>::value_type>::type &&{
     return std::get<detail::index_of<Name, detail::name_tag_t<TypePairs>...>()>(
         std::move(tuple));
 };
