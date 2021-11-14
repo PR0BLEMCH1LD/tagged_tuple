@@ -89,6 +89,16 @@ public:
     using value_type::value_type;
     using value_type::swap;
     using value_type::operator =;
+    
+    // copy and move constructors
+    template <class... Types>
+    tagged_tuple(std::tuple<Types...> &tuple) : value_type(tuple) {}
+    
+    template <class... Types>
+    tagged_tuple(const std::tuple<Types...> &tuple) : value_type(tuple) {}
+    
+    template <class... Types> 
+    tagged_tuple(std::tuple<Types...> &&tuple) : value_type(std::move(tuple)) {}
 };
 
 // our special get functions
