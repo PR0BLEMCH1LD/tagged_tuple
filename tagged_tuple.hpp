@@ -51,10 +51,10 @@ struct TypeSet : Base<Ts>... {
 };
 
 // checks if tags are unique
-template <class... Types>
+template <class... TypePairs>
 constexpr auto are_tags_unique() -> bool {
-    constexpr auto tagset = (TypeSet<>{} + ... + Base<name_tag_t<Types>>{});
-    return tagset.size() == sizeof...(Types);
+    constexpr auto tagset = (TypeSet<>{} + ... + Base<name_tag_t<TypePairs>>{});
+    return tagset.size() == sizeof...(TypePairs);
 }
 
 template <class Needle>
