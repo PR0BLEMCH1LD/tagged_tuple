@@ -94,13 +94,13 @@ public:
     
     // copy and move constructors
     template <class... Types>
-    tagged_tuple(std::tuple<Types...>& tuple) noexcept : value_type(tuple) {}
+    constexpr tagged_tuple(std::tuple<Types...>& tuple) noexcept : value_type(tuple) {}
     
     template <class... Types>
-    tagged_tuple(const std::tuple<Types...>& tuple) noexcept : value_type(tuple) {} 
+    constexpr tagged_tuple(const std::tuple<Types...>& tuple) noexcept : value_type(tuple) {} 
     
     template <class... Types>
-    tagged_tuple(std::tuple<Types...>&& tuple) noexcept : value_type(std::move(tuple)) {}
+    constexpr tagged_tuple(std::tuple<Types...>&& tuple) noexcept : value_type(std::move(tuple)) {}
 };
 
 // our special get functions
