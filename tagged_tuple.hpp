@@ -36,18 +36,18 @@ template <class T>
 using name_tag_value_t = typename name_tag_traits<T>::value_type;
 
 template <class T> struct Base {};
-template <class... Ts>
-struct TypeSet : Base<Ts>... {
+template <class... Types>
+struct TypeSet : Base<Types>... {
     template <class T>
     constexpr auto operator + (Base<T>) {
         if constexpr (std::is_base_of_v<Base<T>, TypeSet>) {
             return TypeSet{};
         }
         else {
-            return TypeSet<Ts..., T>{};
+            return TypeSet<Types..., T>{};
         }
     }
-    constexpr std::size_t size() const { return sizeof...(Ts); }
+    constexpr std::size_t size() const { return sizeof...(Types); }
 };
 
 // checks if name tags are unique
