@@ -1,6 +1,6 @@
 // tagged_tuple header
 
-// Code taken from https://gist.github.com/ilsken/dd91285d50197d6345f9
+// Code taken from https://gist.github.com/tarqd/dd91285d50197d6345f9
 // Modified by https://github.com/legendaryzyper
 
 #ifndef _TAGGED_TUPLE_
@@ -47,23 +47,23 @@ struct TypeSet : Base<Ts>... {
             return TypeSet<Ts..., T>{};
         }
     }
-    constexpr auto size() const -> std::size_t { return sizeof...(Ts); }
+    constexpr std::size_t size() const { return sizeof...(Ts); }
 };
 
 // checks if name tags are unique
 template <class... TypePairs>
-constexpr auto are_name_tags_unique() -> bool {
+constexpr bool are_name_tags_unique() {
     constexpr auto tagset = (TypeSet<>{} + ... + Base<name_tag_t<TypePairs>>{});
     return tagset.size() == sizeof...(TypePairs);
 }
 
 template <class Needle>
-constexpr auto index_of_impl(size_t index, size_t end) -> std::size_t {
+constexpr std::size_t index_of_impl(size_t index, size_t end) {
     return end;
 };
 
 template <class Needle, class T, class... Haystack>
-constexpr auto index_of_impl(size_t index, size_t end) -> std::size_t {
+constexpr std::size_t index_of_impl(size_t index, size_t end) {
     return std::is_same<Needle, T>::value
         ? index
         : index_of_impl<Needle, Haystack...>(index + 1, end);
@@ -71,7 +71,7 @@ constexpr auto index_of_impl(size_t index, size_t end) -> std::size_t {
 
 // find the index of T in a type list, returns sizeof...(Haystack) + 1 on failure (think std::end())
 template <class Needle, class... Haystack>
-static constexpr auto index_of() -> std::size_t {
+static constexpr std::size_t index_of() {
     return index_of_impl<Needle, Haystack...>(0, sizeof...(Haystack) + 1);
 };
 
@@ -83,6 +83,7 @@ class tagged_tuple : public std::tuple<detail::name_tag_value_t<TypePairs>...> {
 public:
     // throws an error if name tags are not unique
     static_assert(detail::are_name_tags_unique<TypePairs...>(), "Duplicated name tags!");
+	
     // not really needed for now but if we switch to private inheritance it'll come in handy
     using tag_type = std::tuple<detail::name_tag_t<TypePairs>...>;
     using value_type = std::tuple<detail::name_tag_value_t<TypePairs>...>;
@@ -92,36 +93,36 @@ public:
     
     // copy and move constructors
     template <class... Types>
-    tagged_tuple(std::tuple<Types...> &tuple) : value_type(tuple) {}
+    tagged_tuple(std::tuple<Types...>& tuple) : value_type(tuple) {}
     
     template <class... Types>
-    tagged_tuple(const std::tuple<Types...> &tuple) : value_type(tuple) {}
+    tagged_tuple(const std::tuple<Types...>& tuple) : value_type(tuple) {} 
     
     template <class... Types>
-    tagged_tuple(std::tuple<Types...> &&tuple) : value_type(std::move(tuple)) {}
+    tagged_tuple(std::tuple<Types...>&& tuple) : value_type(std::move(tuple)) {}
 };
 
 // our special get functions
 template <class Name, class... TypePairs>
-auto get(tagged_tuple<TypePairs...>& tuple) -> typename std::tuple_element<
-    detail::index_of<Name, detail::name_tag_t<TypePairs>...>(),
-    typename tagged_tuple<TypePairs...>::value_type>::type& {
+std::tuple_element_t<
+	detail::index_of<Name, detail::name_tag_t<TypePairs>...>(), 
+	typename tagged_tuple<TypePairs...>::value_type>& get(tagged_tuple<TypePairs...>& tuple) {
     return std::get<detail::index_of<Name, detail::name_tag_t<TypePairs>...>()>(
         tuple);
 };
 
 template <class Name, class... TypePairs>
-auto get(const tagged_tuple<TypePairs...>& tuple) -> const typename std::tuple_element<
-    detail::index_of<Name, detail::name_tag_t<TypePairs>...>(),
-    typename tagged_tuple<TypePairs...>::value_type>::type& {
+const std::tuple_element_t<
+	detail::index_of<Name, detail::name_tag_t<TypePairs>...>(), 
+	typename tagged_tuple<TypePairs...>::value_type>& get(const tagged_tuple<TypePairs...>& tuple) {
     return std::get<detail::index_of<Name, detail::name_tag_t<TypePairs>...>()>(
         tuple);
 };
 
 template <class Name, class... TypePairs>
-auto get(tagged_tuple<TypePairs...>&& tuple) -> typename std::tuple_element<
-    detail::index_of<Name, detail::name_tag_t<TypePairs>...>(),
-    typename tagged_tuple<TypePairs...>::value_type>::type&& {
+std::tuple_element_t<
+	detail::index_of<Name, detail::name_tag_t<TypePairs>...>(), 
+	typename tagged_tuple<TypePairs...>::value_type>&& get(tagged_tuple<TypePairs...>&& tuple) {
     return std::get<detail::index_of<Name, detail::name_tag_t<TypePairs>...>()>(
         std::move(tuple));
 };
