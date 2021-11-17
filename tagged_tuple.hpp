@@ -26,8 +26,7 @@ struct name_tag_traits {
     using value_type = typename T::second;
 };
 
-// helper alias, turns a list of TypePairs supplied to tagged_tuple to a list of
-// key/tag/name types
+// helper alias, turns a list of TypePairs supplied to tagged_tuple to a list of key/tag/name types
 template <class T>
 using name_tag_t = typename name_tag_traits<T>::tag_type;
 
@@ -36,42 +35,44 @@ template <class T>
 using name_tag_value_t = typename name_tag_traits<T>::value_type;
 
 template <class T> struct Base {};
+
 template <class... Types>
 struct TypeSet : Base<Types>... {
     template <class T>
-    constexpr auto operator + (Base<T>) {
-        if constexpr (std::is_base_of_v<Base<T>, TypeSet>) {
-            return TypeSet{};
-        }
-        else {
-            return TypeSet<Types..., T>{};
-        }
+    constexpr auto operator + (Base<T>) noexcept {
+        if constexpr (std::is_base_of_v<Base<T>, TypeSet>) { 
+			return TypeSet{};
+		}
+        else { 
+			return TypeSet<Types..., T>{};
+		}
     }
-    constexpr std::size_t size() const { return sizeof...(Types); }
+    constexpr std::size_t size() const noexcept { return sizeof...(Types); }
 };
 
 // checks if name tags are unique
 template <class... TypePairs>
-constexpr bool are_name_tags_unique() {
+constexpr bool are_name_tags_unique() noexcept {
     constexpr auto tagset = (TypeSet<>{} + ... + Base<name_tag_t<TypePairs>>{});
     return tagset.size() == sizeof...(TypePairs);
 }
 
 template <class Needle>
-constexpr std::size_t index_of_impl(size_t index, size_t end) {
+constexpr std::size_t index_of_impl(size_t index, size_t end) noexcept {
     return end;
 };
 
 template <class Needle, class T, class... Haystack>
-constexpr std::size_t index_of_impl(size_t index, size_t end) {
+constexpr std::size_t index_of_impl(size_t index, size_t end) noexcept {
     return std::is_same<Needle, T>::value
         ? index
         : index_of_impl<Needle, Haystack...>(index + 1, end);
 };
 
-// find the index of T in a type list, returns sizeof...(Haystack) + 1 on failure (think std::end())
+// find the index of T in a type list 
+// returns sizeof...(Haystack) + 1 on failure (think std::end())
 template <class Needle, class... Haystack>
-static constexpr std::size_t index_of() {
+static constexpr std::size_t index_of() noexcept {
     return index_of_impl<Needle, Haystack...>(0, sizeof...(Haystack) + 1);
 };
 
@@ -93,38 +94,38 @@ public:
     
     // copy and move constructors
     template <class... Types>
-    tagged_tuple(std::tuple<Types...>& tuple) : value_type(tuple) {}
+    tagged_tuple(std::tuple<Types...>& tuple) noexcept : value_type(tuple) {}
     
     template <class... Types>
-    tagged_tuple(const std::tuple<Types...>& tuple) : value_type(tuple) {} 
+    tagged_tuple(const std::tuple<Types...>& tuple) noexcept : value_type(tuple) {} 
     
     template <class... Types>
-    tagged_tuple(std::tuple<Types...>&& tuple) : value_type(std::move(tuple)) {}
+    tagged_tuple(std::tuple<Types...>&& tuple) noexcept : value_type(std::move(tuple)) {}
 };
 
 // our special get functions
 template <class Name, class... TypePairs>
-std::tuple_element_t<
+constexpr std::tuple_element_t<
 	detail::index_of<Name, detail::name_tag_t<TypePairs>...>(), 
-	typename tagged_tuple<TypePairs...>::value_type>& get(tagged_tuple<TypePairs...>& tuple) {
+	typename tagged_tuple<TypePairs...>::value_type>& get(tagged_tuple<TypePairs...>& tpl) noexcept {
     return std::get<detail::index_of<Name, detail::name_tag_t<TypePairs>...>()>(
-        tuple);
+        tpl);
 };
 
 template <class Name, class... TypePairs>
-const std::tuple_element_t<
+constexpr const std::tuple_element_t<
 	detail::index_of<Name, detail::name_tag_t<TypePairs>...>(), 
-	typename tagged_tuple<TypePairs...>::value_type>& get(const tagged_tuple<TypePairs...>& tuple) {
+	typename tagged_tuple<TypePairs...>::value_type>& get(const tagged_tuple<TypePairs...>& tpl) noexcept {
     return std::get<detail::index_of<Name, detail::name_tag_t<TypePairs>...>()>(
-        tuple);
+        tpl);
 };
 
 template <class Name, class... TypePairs>
-std::tuple_element_t<
+constexpr std::tuple_element_t<
 	detail::index_of<Name, detail::name_tag_t<TypePairs>...>(), 
-	typename tagged_tuple<TypePairs...>::value_type>&& get(tagged_tuple<TypePairs...>&& tuple) {
+	typename tagged_tuple<TypePairs...>::value_type>&& get(tagged_tuple<TypePairs...>&& tpl) noexcept {
     return std::get<detail::index_of<Name, detail::name_tag_t<TypePairs>...>()>(
-        std::move(tuple));
+        std::move(tpl));
 };
 
 } // namespace ptnk
